@@ -94,19 +94,19 @@
 /* ─── Progress Bar Section ──────────────────────────────────────── */
 
 .cd-progress-section {
-  padding: 14px 20px;
+  padding: 8px 16px 10px;
   background: var(--cd-gray-light);
   border-bottom: 1px solid var(--cd-border);
   flex-shrink: 0;
 }
 
 .cd-progress-message {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--cd-text);
   text-align: center;
-  margin: 0 0 12px;
-  line-height: 1.4;
+  margin: 0 0 8px;
+  line-height: 1.3;
 }
 
 .cd-progress-message strong {
@@ -115,7 +115,7 @@
 
 .cd-progress-tiers {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
   padding: 0 4px;
 }
@@ -124,9 +124,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 4px;
+  top: 10px;
+  height: 3px;
   background: #ddd;
   border-radius: 2px;
   z-index: 0;
@@ -135,9 +134,8 @@
 .cd-progress-fill {
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 4px;
+  top: 10px;
+  height: 3px;
   background: var(--cd-primary);
   border-radius: 2px;
   z-index: 1;
@@ -154,15 +152,15 @@
 }
 
 .cd-tier-dot {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid #ddd;
+  border: 2px solid #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   color: #999;
   transition: border-color 0.3s, background 0.3s, color 0.3s;
@@ -181,10 +179,10 @@
 }
 
 .cd-tier-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   color: var(--cd-text-light);
-  margin-top: 6px;
+  margin-top: 3px;
   text-align: center;
   white-space: nowrap;
 }
@@ -192,9 +190,9 @@
 .cd-tier-label.reached { color: var(--cd-primary); }
 
 .cd-tier-sublabel {
-  font-size: 9px;
+  font-size: 8px;
   color: #999;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* ─── Cart Items ────────────────────────────────────────────────── */
@@ -679,12 +677,21 @@
   }
 
   .cd-tier-label {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .cd-tier-dot {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
+  }
+
+  .cd-progress-section {
+    padding: 6px 12px 8px;
+  }
+
+  .cd-progress-message {
+    font-size: 11px;
+    margin-bottom: 6px;
   }
 }
