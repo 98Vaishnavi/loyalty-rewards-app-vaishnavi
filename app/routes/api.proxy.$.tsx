@@ -15,6 +15,11 @@ import { socialShareKey, birthdayBonusKey } from "../.server/utils/idempotency";
 import { earnPoints } from "../.server/services/points.service";
 import { CartDrawerSettings } from "../.server/models/cart-settings.model";
 import { TimerSettings } from "../.server/models/timer-settings.model";
+import { PopupSettings } from "../.server/models/popup-settings.model";
+import { WheelSettings } from "../.server/models/wheel-settings.model";
+import { Subscriber } from "../.server/models/subscriber.model";
+import { createRedemptionDiscount } from "../.server/services/discount.service";
+import { generateDiscountCode } from "../.server/utils/codes";
 
 // Rate limit tracker (in-memory, per-instance)
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
@@ -79,6 +84,26 @@ export const loader = async ({ request, params: routeParams }: LoaderFunctionArg
     return handleGetTimerSettings(shop);
   }
 
+  if (path === "popup-settings") {
+    return handleGetPopupSettings(shop);
+  }
+
+  if (path === "popup-submit" || action === "popup-submit") {
+    return handlePopupSubmit(params, shop);
+  }
+
+  if (path === "wheel-settings") {
+    return handleGetWheelSettings(shop);
+  }
+
+  if (path === "wheel-spin" || action === "wheel-spin") {
+    return handleWheelSpin(params, shop);
+  }
+
+  if (path === "stock-subscribe" || action === "stock-subscribe") {
+    return handleStockSubscribe(params, shop);
+  }
+
   if (!shopifyCustomerId) {
     return json({ error: "Not logged in" }, { status: 401 });
   }
@@ -102,6 +127,153 @@ export const loader = async ({ request, params: routeParams }: LoaderFunctionArg
 };
 
 // ─── Cart Settings (public, no customer auth) ───────────────────
+
+// ─── Popup Settings ──────────────────────────────────────────────
+
+async function handleGetPopupSettings(shop: string) {
+  const s = await PopupSettings.findOne({ shopId: shop }).lean();
+  if (!s?.enabled) return json({ enabled: false });
+  return json({
+    enabled: true, headline: s.headline, subtext: s.subtext,
+    discountType: s.discountType, discountValue: s.discountValue,
+    buttonText: s.buttonText, successMessage: s.successMessage,
+    bgColor: s.bgColor, accentColor: s.accentColor,
+    showOnMobile: s.showOnMobile, delaySeconds: s.delaySeconds,
+  });
+}
+
+async function handlePopupSubmit(params: URLSearchParams, shop: string) {
+  const email = params.get("email");
+  if (!email || !email.includes("@")) return json({ error: "Valid email required" }, { status: 400 });
+
+  // Check if already submitted
+  const existing = await Subscriber.findOne({ shopId: shop, email, source: "exit_popup" });
+  if (existing?.discountCode) {
+    return json({ success: true, discountCode: existing.discountCode });
+  }
+
+  // Get popup settings for discount config
+  const settings = await PopupSettings.findOne({ shopId: shop });
+  if (!settings) return json({ error: "Not configured" }, { status: 400 });
+
+  // Create discount code
+  try {
+    const { admin } = await unauthenticated.admin(shop);
+    const { discountCode } = await createRedemptionDiscount(admin as any, {
+      shopifyCustomerId: "gid://shopify/Customer/0", // Generic - not customer-specific
+      discountType: settings.discountType === "percentage" ? "PERCENTAGE" : "FIXED_AMOUNT",
+      discountValue: settings.discountValue,
+      minimumOrderAmount: 0,
+      title: `Exit Popup: ${settings.discountValue}${settings.discountType === "percentage" ? "%" : "₹"} off`,
+    });
+
+    await Subscriber.create({
+      shopId: shop, email, source: "exit_popup",
+      discountCode, status: "active",
+    });
+
+    return json({ success: true, discountCode });
+  } catch (err) {
+    return json({ error: "Failed to create discount" }, { status: 500 });
+  }
+}
+
+// ─── Wheel Settings ─────────────────────────────────────────────
+
+async function handleGetWheelSettings(shop: string) {
+  const s = await WheelSettings.findOne({ shopId: shop }).lean();
+  if (!s?.enabled) return json({ enabled: false });
+  return json({
+    enabled: true, headline: s.headline, subtext: s.subtext,
+    buttonText: s.buttonText, triggerButtonText: s.triggerButtonText,
+    triggerButtonColor: s.triggerButtonColor,
+    prizes: s.prizes, bgColor: s.bgColor,
+  });
+}
+
+async function handleWheelSpin(params: URLSearchParams, shop: string) {
+  const email = params.get("email");
+  if (!email || !email.includes("@")) return json({ error: "Valid email required" }, { status: 400 });
+
+  // Check if already spun
+  const existing = await Subscriber.findOne({ shopId: shop, email, source: "spin_wheel" });
+  if (existing) {
+    return json({ error: "You've already spun! Check your email for the result." });
+  }
+
+  const settings = await WheelSettings.findOne({ shopId: shop });
+  if (!settings || !settings.prizes.length) return json({ error: "Not configured" }, { status: 400 });
+
+  // Weighted random selection
+  const prizes = settings.prizes;
+  const totalWeight = prizes.reduce((sum, p) => sum + (p.probability || 1), 0);
+  let random = Math.random() * totalWeight;
+  let selectedIndex = 0;
+  for (let i = 0; i < prizes.length; i++) {
+    random -= (prizes[i].probability || 1);
+    if (random <= 0) { selectedIndex = i; break; }
+  }
+
+  const prize = prizes[selectedIndex];
+  let discountCode = "";
+
+  // Create discount if it's a winning prize
+  if (prize.discountType !== "no_prize") {
+    try {
+      const { admin } = await unauthenticated.admin(shop);
+      const result = await createRedemptionDiscount(admin as any, {
+        shopifyCustomerId: "gid://shopify/Customer/0",
+        discountType: prize.discountType === "percentage" ? "PERCENTAGE" :
+                       prize.discountType === "free_shipping" ? "PERCENTAGE" : "FIXED_AMOUNT",
+        discountValue: prize.discountType === "free_shipping" ? 0 : prize.discountValue,
+        minimumOrderAmount: 0,
+        title: `Spin Wheel: ${prize.label}`,
+      });
+      discountCode = result.discountCode;
+    } catch (err) {
+      // If discount creation fails, still record the spin
+    }
+  }
+
+  await Subscriber.create({
+    shopId: shop, email, source: "spin_wheel",
+    prizeName: prize.label, discountCode, status: "active",
+  });
+
+  return json({
+    prizeIndex: selectedIndex,
+    prize: { label: prize.label, discountType: prize.discountType },
+    discountCode,
+  });
+}
+
+// ─── Stock Subscribe ────────────────────────────────────────────
+
+async function handleStockSubscribe(params: URLSearchParams, shop: string) {
+  const email = params.get("email");
+  const productId = params.get("productId");
+  const variantId = params.get("variantId");
+  const productTitle = params.get("productTitle");
+  const variantTitle = params.get("variantTitle");
+
+  if (!email || !email.includes("@")) return json({ error: "Valid email required" }, { status: 400 });
+  if (!productId) return json({ error: "Product ID required" }, { status: 400 });
+
+  // Check if already subscribed for this product
+  const existing = await Subscriber.findOne({
+    shopId: shop, email, source: "back_in_stock", productId, status: "active",
+  });
+  if (existing) return json({ success: true, message: "Already subscribed" });
+
+  await Subscriber.create({
+    shopId: shop, email, source: "back_in_stock",
+    productId, variantId, productTitle, variantTitle, status: "active",
+  });
+
+  return json({ success: true });
+}
+
+// ─── Timer Settings ─────────────────────────────────────────────
 
 async function handleGetTimerSettings(shop: string) {
   const settings = await TimerSettings.findOne({ shopId: shop }).lean();

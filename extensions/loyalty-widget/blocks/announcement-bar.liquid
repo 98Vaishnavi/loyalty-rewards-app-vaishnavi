@@ -1,0 +1,104 @@
+{% comment %}
+  Announcement / USP Bar - App Embed Block
+  Scrolling/rotating bar at top of store.
+  No backend - all config via Theme Editor.
+{% endcomment %}
+
+{% assign msgs = '' %}
+{% if block.settings.message_1 != blank %}{% assign msgs = msgs | append: block.settings.message_1 | append: '|||' %}{% endif %}
+{% if block.settings.message_2 != blank %}{% assign msgs = msgs | append: block.settings.message_2 | append: '|||' %}{% endif %}
+{% if block.settings.message_3 != blank %}{% assign msgs = msgs | append: block.settings.message_3 | append: '|||' %}{% endif %}
+{% if block.settings.message_4 != blank %}{% assign msgs = msgs | append: block.settings.message_4 | append: '|||' %}{% endif %}
+{% if block.settings.message_5 != blank %}{% assign msgs = msgs | append: block.settings.message_5 | append: '|||' %}{% endif %}
+
+{% if msgs != '' %}
+<div
+  class="ab-bar"
+  id="announcement-bar-app"
+  data-messages="{{ msgs | escape }}"
+  data-speed="{{ block.settings.rotate_speed }}"
+  data-transition="{{ block.settings.transition }}"
+  style="
+    --ab-bg: {{ block.settings.bg_color }};
+    --ab-text: {{ block.settings.text_color }};
+    --ab-speed: {{ block.settings.rotate_speed }}s;
+  "
+>
+  <div class="ab-content">
+    <span class="ab-message">{{ block.settings.message_1 }}</span>
+  </div>
+</div>
+
+{{ 'announcement-bar.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'announcement-bar.js' | asset_url }}" defer></script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "USP Announcement Bar",
+  "target": "body",
+  "settings": [
+    {
+      "type": "text",
+      "id": "message_1",
+      "label": "Message 1",
+      "default": "🚚 Free Shipping Over ₹499"
+    },
+    {
+      "type": "text",
+      "id": "message_2",
+      "label": "Message 2",
+      "default": "📦 Easy 7-Day Returns"
+    },
+    {
+      "type": "text",
+      "id": "message_3",
+      "label": "Message 3",
+      "default": "💳 COD Available"
+    },
+    {
+      "type": "text",
+      "id": "message_4",
+      "label": "Message 4",
+      "default": "⭐ 1 Lakh+ Happy Customers"
+    },
+    {
+      "type": "text",
+      "id": "message_5",
+      "label": "Message 5"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "rotate_speed",
+      "label": "Rotate Speed (seconds)",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 4,
+      "unit": "s"
+    },
+    {
+      "type": "select",
+      "id": "transition",
+      "label": "Transition Style",
+      "options": [
+        { "value": "fade", "label": "Fade" },
+        { "value": "slide", "label": "Slide Up" }
+      ],
+      "default": "fade"
+    }
+  ]
+}
+{% endschema %}

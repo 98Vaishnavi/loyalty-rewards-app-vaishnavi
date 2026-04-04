@@ -1,0 +1,16 @@
+{% comment %}
+  Spin the Wheel - App Embed Block
+  Gamified email capture popup with spinning wheel.
+{% endcomment %}
+
+<div id="spin-wheel-app" data-shop-domain="{{ shop.permanent_domain }}" style="display:none;"></div>
+{{ 'spin-wheel.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'spin-wheel.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Spin Wheel",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

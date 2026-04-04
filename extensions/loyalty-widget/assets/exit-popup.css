@@ -1,0 +1,102 @@
+/* ─── Exit Intent Popup ──────────────────────────────────────────── */
+
+.ep-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.ep-overlay.open { opacity: 1; visibility: visible; }
+
+.ep-modal {
+  width: 400px; max-width: 92vw;
+  background: var(--ep-bg, #fff);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.ep-overlay.open .ep-modal { transform: scale(1) translateY(0); }
+
+.ep-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  background: none; border: none; cursor: pointer;
+  color: #999; font-size: 18px; display: flex;
+  align-items: center; justify-content: center;
+  border-radius: 50%; transition: background 0.2s;
+}
+.ep-close:hover { background: #f0f0f0; }
+
+.ep-headline {
+  font-size: 22px; font-weight: 800; color: #333;
+  margin: 0 0 8px; line-height: 1.3;
+}
+
+.ep-subtext {
+  font-size: 14px; color: #666; margin: 0 0 20px; line-height: 1.5;
+}
+
+.ep-discount-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  background: var(--ep-accent, #5C6AC4);
+  color: #fff;
+  font-size: 24px; font-weight: 800;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.ep-form { display: flex; gap: 8px; }
+
+.ep-email {
+  flex: 1; padding: 12px 14px;
+  border: 2px solid #e0e0e0; border-radius: 8px;
+  font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+}
+.ep-email:focus { border-color: var(--ep-accent, #5C6AC4); }
+
+.ep-submit {
+  padding: 12px 24px;
+  background: var(--ep-accent, #5C6AC4);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.ep-submit:hover { opacity: 0.9; }
+.ep-submit:disabled { opacity: 0.5; }
+
+.ep-success { margin-top: 16px; }
+.ep-success-msg { font-size: 14px; color: #28a745; font-weight: 600; margin: 0 0 8px; }
+.ep-code {
+  display: inline-block; padding: 10px 24px;
+  background: #f0f0f0; border-radius: 8px;
+  font-size: 20px; font-weight: 800;
+  letter-spacing: 2px; color: var(--ep-accent, #5C6AC4);
+  margin-bottom: 12px;
+}
+.ep-apply-btn {
+  display: inline-block; padding: 10px 20px;
+  background: var(--ep-accent, #5C6AC4); color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+}
+
+.ep-error { font-size: 12px; color: #dc3545; margin-top: 8px; }
+.ep-skip { margin-top: 12px; font-size: 12px; color: #999; cursor: pointer; background: none; border: none; }
+
+@media (max-width: 480px) {
+  .ep-modal { padding: 24px 20px; }
+  .ep-headline { font-size: 18px; }
+  .ep-form { flex-direction: column; }
+  .ep-discount-badge { font-size: 20px; }
+}

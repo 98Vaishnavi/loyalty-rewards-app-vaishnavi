@@ -1,0 +1,16 @@
+{% comment %}
+  Exit-Intent Popup - App Embed Block
+  Shows discount popup when visitor is about to leave.
+{% endcomment %}
+
+<div id="exit-popup-app" data-shop-domain="{{ shop.permanent_domain }}" style="display:none;"></div>
+{{ 'exit-popup.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'exit-popup.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Exit Popup",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

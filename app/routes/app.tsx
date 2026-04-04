@@ -28,6 +28,9 @@ export default function App() {
         <Link to="/app/referrals">Referrals</Link>
         <Link to="/app/cart-settings">Cart Drawer</Link>
         <Link to="/app/timer-settings">Timer</Link>
+        <Link to="/app/popup-settings">Exit Popup</Link>
+        <Link to="/app/wheel-settings">Spin Wheel</Link>
+        <Link to="/app/stock-alerts">Stock Alerts</Link>
         <Link to="/app/settings">Settings</Link>
       </NavMenu>
       <Outlet />

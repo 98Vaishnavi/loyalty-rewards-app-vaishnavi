@@ -1,0 +1,86 @@
+/* ─── Back in Stock Alert ────────────────────────────────────────── */
+
+.bis-container {
+  margin: 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.bis-inner {
+  padding: 16px;
+  background: #fafafa;
+  border: 1px dashed #ddd;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.bis-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 4px;
+}
+
+.bis-subtext {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.bis-form {
+  display: flex;
+  gap: 8px;
+}
+
+.bis-email {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.bis-email:focus {
+  border-color: var(--bis-color, #5C6AC4);
+}
+
+.bis-btn {
+  padding: 10px 20px;
+  background: var(--bis-color, #5C6AC4);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.bis-btn:hover { opacity: 0.9; }
+.bis-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.bis-success {
+  font-size: 13px;
+  color: #28a745;
+  margin: 10px 0 0;
+  font-weight: 600;
+}
+
+.bis-error {
+  font-size: 12px;
+  color: #dc3545;
+  margin: 8px 0 0;
+}
+
+@media (max-width: 480px) {
+  .bis-form {
+    flex-direction: column;
+  }
+
+  .bis-btn {
+    width: 100%;
+  }
+}
