@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { AbandonedCart } from "../models/abandoned-cart.model";
 import { VoiceAgentSettings } from "../models/voice-agent-settings.model";
 import { connectDB } from "../../db.server";
-import { triggerSarvamCall, generateCallPrompt } from "./sarvam.service";
+import { triggerElevenLabsCall, generateCallPrompt } from "./elevenlabs.service";
 import { pollAllShopsForAbandonedCarts } from "./abandoned-cart-poller.service";
 
 /**
@@ -181,7 +181,7 @@ async function attemptCall(cart: any): Promise<void> {
   await cart.save();
 
   try {
-    const result = await triggerSarvamCall(
+    const result = await triggerElevenLabsCall(
       settings.sarvamApiKey,
       settings.sarvamAgentId,
       cart.customerPhone,

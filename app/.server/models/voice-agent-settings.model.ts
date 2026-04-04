@@ -3,9 +3,9 @@ import mongoose, { type Document, type Model, Schema } from "mongoose";
 export interface IVoiceAgentSettings extends Document {
   shopId: string;
   enabled: boolean;
-  // Sarvam AI config
-  sarvamApiKey: string;
-  sarvamAgentId: string;
+  // ElevenLabs Conversational AI config (field names kept for DB compatibility)
+  sarvamApiKey: string;   // ElevenLabs API Key
+  sarvamAgentId: string;  // ElevenLabs Agent ID
   // Call config
   callDelayMinutes: number;
   minCartValue: number;

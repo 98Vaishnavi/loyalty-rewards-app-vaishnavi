@@ -143,13 +143,13 @@ export default function VoiceAgentPage() {
 
         <Layout>
           {/* Enable + API Config */}
-          <Layout.AnnotatedSection title="Voice Agent" description="Enable AI voice calls for abandoned cart recovery. Requires a Sarvam AI account.">
+          <Layout.AnnotatedSection title="Voice Agent" description="Enable AI voice calls for abandoned cart recovery. Powered by ElevenLabs Conversational AI.">
             <Card><BlockStack gap="400">
               <Checkbox label="Enable Voice Agent" checked={s.enabled} onChange={u("enabled")} />
               {s.enabled && (
                 <>
-                  <TextField label="Sarvam AI API Key" value={s.sarvamApiKey} onChange={u("sarvamApiKey")} type="password" autoComplete="off" helpText="Get your API key from sarvam.ai" />
-                  <TextField label="Sarvam Agent ID" value={s.sarvamAgentId} onChange={u("sarvamAgentId")} autoComplete="off" helpText="Create an agent on Sarvam Samvaad and enter its ID" />
+                  <TextField label="ElevenLabs API Key" value={s.sarvamApiKey} onChange={u("sarvamApiKey")} type="password" autoComplete="off" helpText="Get your API key from elevenlabs.io → Profile → API Keys" />
+                  <TextField label="ElevenLabs Agent ID" value={s.sarvamAgentId} onChange={u("sarvamAgentId")} autoComplete="off" helpText="Create an agent in ElevenLabs → Conversational AI → copy the Agent ID from the URL" />
                 </>
               )}
             </BlockStack></Card>
@@ -247,7 +247,7 @@ export default function VoiceAgentPage() {
               </IndexTable>
             ) : (
               <EmptyState heading="No calls yet" image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-                <p>Configure your Sarvam AI credentials and enable the voice agent. Calls will appear here as carts are abandoned.</p>
+                <p>Configure your ElevenLabs credentials and enable the voice agent. Calls will appear here as carts are abandoned.</p>
               </EmptyState>
             )}
           </BlockStack>
