@@ -22,7 +22,33 @@ interface ElevenLabsCallResult {
 }
 
 /**
- * Trigger an outbound call via ElevenLabs Conversational AI.
+ * Fetch the first phone number ID linked to the ElevenLabs account.
+ * Used as agent_phone_number_id for outbound Twilio calls.
+ */
+async function getAgentPhoneNumberId(apiKey: string): Promise<string> {
+  const response = await fetch(
+    `${ELEVENLABS_BASE_URL}/convai/phone-numbers`,
+    { headers: { "xi-api-key": apiKey } },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ElevenLabs phone numbers: ${response.status}`);
+  }
+
+  const data = await response.json();
+  // data may be { phone_numbers: [...] } or an array directly
+  const numbers: any[] = Array.isArray(data) ? data : (data.phone_numbers || []);
+
+  if (!numbers.length) {
+    throw new Error("No phone numbers configured in ElevenLabs. Add a Twilio number under Deploy → Phone Numbers.");
+  }
+
+  return numbers[0].phone_number_id || numbers[0].id;
+}
+
+/**
+ * Trigger an outbound call via ElevenLabs Conversational AI (Twilio).
+ * Endpoint: POST /v1/convai/twilio/outbound-call
  */
 export async function triggerElevenLabsCall(
   apiKey: string,
@@ -36,9 +62,11 @@ export async function triggerElevenLabsCall(
     phone = phone.startsWith("91") ? `+${phone}` : `+91${phone}`;
   }
 
-  // ElevenLabs Conversational AI outbound call endpoint
+  // Get the phone number ID linked in ElevenLabs
+  const agentPhoneNumberId = await getAgentPhoneNumberId(apiKey);
+
   const response = await fetch(
-    `${ELEVENLABS_BASE_URL}/convai/conversations/create-call`,
+    `${ELEVENLABS_BASE_URL}/convai/twilio/outbound-call`,
     {
       method: "POST",
       headers: {
@@ -47,8 +75,16 @@ export async function triggerElevenLabsCall(
       },
       body: JSON.stringify({
         agent_id: agentId,
-        phone_number: phone,
-        variables: {
+        agent_phone_number_id: agentPhoneNumberId,
+        to_number: phone,
+        conversation_config_override: {
+          agent: {
+            first_message: context.customer_name
+              ? `Hi ${context.customer_name}! This is a call from ${context.brand_name}.`
+              : undefined,
+          },
+        },
+        custom_parameters: {
           customer_name: context.customer_name,
           product_name: context.product_name,
           cart_total: context.cart_total,
